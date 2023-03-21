@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:bmi_calculator/models/bmi_model.dart';
+import 'package:bmi_calculator/models/result.dart';
 import 'package:bmi_calculator/queries/bmi_create_table_query.dart';
 
 class DatabaseHelper {
