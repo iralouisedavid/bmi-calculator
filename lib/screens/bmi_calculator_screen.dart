@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:bmi_calculator/bmi_calculator.dart';
 import 'package:bmi_calculator/screens/bmi_results_screen.dart';
 import 'package:bmi_calculator/screens/bmi_settings_screen.dart';
+import 'package:bmi_calculator/validators/bmi_validators.dart';
+import 'package:bmi_calculator/services/api.dart';
+import 'package:bmi_calculator/models/user.dart';
 
 class BMICalculatorScreen extends StatefulWidget {
   @override
@@ -16,6 +19,9 @@ class _BMICalculatorScreenState extends State<BMICalculatorScreen> {
 
   // Create a form key to validate input
   final _formKey = GlobalKey<FormState>();
+
+  // Create ValueNotifier for age
+  ValueNotifier<int> _ageValueNotifier = ValueNotifier<int>(0);
 
   @override
   void dispose() {
@@ -37,7 +43,7 @@ class _BMICalculatorScreenState extends State<BMICalculatorScreen> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => BMISettingsScreen()),
+                MaterialPageRoute(builder: (context) => const BMISettingsScreen()),
               );
             },
           ),
@@ -55,16 +61,7 @@ class _BMICalculatorScreenState extends State<BMICalculatorScreen> {
                 labelText: 'Weight (kg)',
                 border: OutlineInputBorder(),
               ),
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Enter your weight in kilograms';
-                }
-                double? weight = double.tryParse(value);
-                if (weight == null || weight < 2 || weight > 650) {
-                  return 'Please enter a valid weight';
-                }
-                return null;
-              },
+              validator: validateWeight,
             ),
             const SizedBox(height: 20),
             TextFormField(
@@ -74,16 +71,7 @@ class _BMICalculatorScreenState extends State<BMICalculatorScreen> {
                 labelText: 'Height (cm)',
                 border: OutlineInputBorder(),
               ),
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Enter your height in centimeters';
-                }
-                double? height = double.tryParse(value);
-                if (height == null || height < 50 || height > 280) {
-                  return 'Please enter a valid height';
-                }
-                return null;
-              },
+              validator: validateHeight,
             ),
             const SizedBox(height: 20),
             TextFormField(
@@ -93,16 +81,7 @@ class _BMICalculatorScreenState extends State<BMICalculatorScreen> {
                 labelText: 'Age',
                 border: OutlineInputBorder(),
               ),
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Please enter your age';
-                }
-                int? age = int.tryParse(value);
-                if (age == null || age < 1 || age > 110) {
-                  return 'Please enter a valid age';
-                }
-                return null;
-              },
+              validator: validateAge,
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -111,23 +90,50 @@ class _BMICalculatorScreenState extends State<BMICalculatorScreen> {
                   BMICalculator bmiCalculator = BMICalculator(
                     weight: double.parse(_weightController.text),
                     height: double.parse(_heightController.text),
-                    age: int.parse(_ageController.text),
+                    //age: int.parse(_ageController.text),
+                    age: _ageValueNotifier.value, // Use the value from ValueNotifier
                   );
-                  bmiCalculator.displayBMIResult(context); // Call displayBMIResult method here
+                  bmiCalculator.displayBMIResult(context);// Call displayBMIResult method here
                 }
               },
               child: const Text('Calculate BMI'),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-                onPressed: () {
-                  // navigateResultsPage(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ResultsScreen()),
+              onPressed: () async {
+                try {
+                  User user = await Api.getRandomUserData(); // Fetch data from API
+                  _ageValueNotifier.value = user.age; // Update ValueNotifier with fetched age
+                  _ageController.text = _ageValueNotifier.value.toString(); // Set age text field with the new age value
+
+                  // ignore: use_build_context_synchronously
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Generated age successfully!'),
+                      backgroundColor: Colors.lightGreen,
+                    ),
                   );
-                },
-                child: const Text('View Results'),
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Failed to generate age'),
+                      backgroundColor: Colors.redAccent,
+                    ),
+                  );
+                }
+              },
+              child: const Text('Generate Age'),
+            ),
+
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ResultsScreen()),
+                );
+              },
+              child: const Text('View Results'),
             ),
           ],
         ),

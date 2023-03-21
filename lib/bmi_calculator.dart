@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:bmi_calculator/models/bmi_model.dart';
+import 'package:bmi_calculator/models/result.dart';
 import 'package:bmi_calculator/data/database_helper.dart';
 
 class BMICalculator extends ChangeNotifier {
@@ -52,8 +52,6 @@ class BMICalculator extends ChangeNotifier {
 
   // Display the BMI result in a dialog box
   Future<void> displayBMIResult(BuildContext context) async {
-    // calculateBMI();
-    // notifyListeners();
     Result bmiResult = Result(
       age: age,
       weight: weight,
@@ -89,30 +87,3 @@ class BMICalculator extends ChangeNotifier {
     );
   }
 }
-    // Show dialog box with BMI result
-  //   await Future.delayed(Duration.zero);
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: const Text('BMI Result'),
-  //         content: Text(
-  //           'BMI: ${_bmi.toStringAsFixed(1)}\n''Status: $status',
-  //           style: TextStyle(
-  //             fontSize: 20,
-  //             fontWeight: FontWeight.bold,
-  //             color: getBMIStatusColor(),
-  //           ),
-  //         ),
-  //         actions: [
-  //           ElevatedButton(
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //             },
-  //             child: const Text('Close'),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
